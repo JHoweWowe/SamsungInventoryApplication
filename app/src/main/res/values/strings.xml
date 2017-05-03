@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Phone Inventory Application</string>
+
+    <!-- CatalogActivity Strings -->
+    <string name="no_phone">No phones available in inventory</string>
+    <string name="warning_add_phone">Add more! The more, the merrier!</string>
+    <string name="action_insert_random_phone_data">Add random data entries</string>
+    <string name="action_delete_all_entries">Delete all entries</string>
+
+    <!-- EditorActivity Strings -->
+    <string name="phone_series">Series</string>
+    <string name="edit_phone">Edit Phone Entry</string>
+    <string name="name_phone_series">Phone Brand</string>
+    <string name="series_phone_series">Phone Model</string>
+    <string name="phone_colour">Colour</string>
+    <string name="phone_memory">Memory (GB)</string>
+    <string name="phone_available_quantity">Available Quantity</string>
+    <string name="phone_price">Phone Price</string>
+    <string name="phone_dollars_price">Dollars (USD$)</string>
+
+    <!-- List_Item XML strings -->
+    <string name="brand_samsung_example">Samsung</string>
+    <string name="model_samsung_example">Galaxy S3</string>
+    <string name="price_samsung_example">$499.95</string>
+    <string name="inventory_samsung_example">473 in stock</string>
+
+
+    <string name="editor_insert_phone_failed">Inserting a Phone entry failed</string>
+    <string name="editor_insert_phone_successful">Inserting a Phone entry was successful</string>
+    <string name="editor_update_phone_failed">Updating a Phone entry failed</string>
+    <string name="editor_update_phone_successful">Updating a Phone entry was successful</string>
+
+</resources>

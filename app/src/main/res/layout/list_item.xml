@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.android.samsunginventoryapplication.EditorActivity"
+    android:layout_margin="8dp"
+    android:orientation="vertical">
+
+    <!-- Make layout style look cleaner -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5">
+
+        <ImageView
+            android:src="@drawable/samsung_phone"
+            android:id="@+id/phone_series"
+            android:layout_width="64dp"
+            android:layout_height="64dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="2.5">
+
+            <TextView
+                android:id="@+id/brand_phone"
+                android:textSize="32sp"
+                android:hint="@string/brand_samsung_example"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:textSize="20sp"
+                android:id="@+id/model_phone"
+                android:hint="@string/model_samsung_example"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <!--Temporary solution...user shall either be able to
+            access the gallery or take image from camera-->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/price_phone"
+                android:textSize="22sp"
+                android:text="@string/price_samsung_example"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+
+            <TextView
+                android:id="@+id/inventory_phone"
+                android:textSize="16sp"
+                android:text="@string/inventory_samsung_example"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
+
