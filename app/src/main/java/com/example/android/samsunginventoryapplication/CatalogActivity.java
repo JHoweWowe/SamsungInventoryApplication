@@ -1,6 +1,7 @@
 package com.example.android.samsunginventoryapplication;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -60,7 +61,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             }
         });
 
-        getLoaderManager().initLoader(PHONE_LOADER,null,null);
+        getSupportLoaderManager().initLoader(PHONE_LOADER,null,this);
     }
 
     //Inflates the menu for the Catalog Activity
@@ -71,6 +72,23 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     //Private method for inserting random phone data;
+    private void insertPhone() {
+        // Create a ContentValues object where column names are the keys,
+        // and Toto's pet attributes are the values.
+        ContentValues values = new ContentValues();
+        values.put(PhoneEntry.COLUMN_PHONE_BRAND, "Samsung");
+        values.put(PhoneEntry.COLUMN_PHONE_MODEL, "Galaxy S5");
+        values.put(PhoneEntry.COLUMN_PHONE_QUANTITY, 155);
+        values.put(PhoneEntry.COLUMN_PHONE_PRICE, 565);
+        values.put(PhoneEntry.COLUMN_PHONE_COLOUR,PhoneEntry.COLOUR_GREY);
+        values.put(PhoneEntry.COLUMN_PHONE_MEMORY,1445);
+
+        // Insert a new row for a phone into the provider using the ContentResolver.
+        // Use the {@link PhoneEntry CONTENT URI} to indicate that we want to insert
+        // into the phone database table.
+        // Receive the new content URI that will allow us to access a phone's data in the future.
+        Uri newUri = getContentResolver().insert(PhoneEntry.CONTENT_URI, values);
+    }
 
 
     //Whenever the user clicks on one of the options below using the menu
@@ -79,8 +97,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case (R.id.action_insert_random_phone_data):
-                //Insert a random phone data entry ...to be inserted after creating PhoneProvider class
-
+                insertPhone();
                 return true;
             case (R.id.action_delete_all_entries):
                 //Delete ALL phone entries...to be implemented after creating the PhoneProvider class
