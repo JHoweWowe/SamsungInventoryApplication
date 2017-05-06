@@ -12,7 +12,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.android.samsunginventoryapplication.data.PhoneContract.PhoneEntry;
@@ -23,8 +27,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private EditText mBrandEditText;
     private EditText mModelEditText;
+    private EditText mStorageSizeEditText;
     private EditText mQuantityEditText;
     private EditText mPriceEditText;
+    private Spinner mColourSpinner;
+
+    //Default colour of the Phone should be Unknown, in case the user fails to put the colour of the phone
+    private int mColour = PhoneEntry.COLOUR_UNKNOWN;
 
     //ContentURI for existing Phone (null if new Phone)
     private Uri mCurrentPhoneUri;
@@ -45,13 +54,58 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
         else {
             setTitle("Edit a Phone");
-            getLoaderManager().initLoader(PHONE_LOADER,null,null);
+            getSupportLoaderManager().initLoader(PHONE_LOADER,null,this);
         }
 
         mBrandEditText = (EditText) findViewById(R.id.name_phone_series);
         mModelEditText = (EditText) findViewById(R.id.series_phone_series);
+        mStorageSizeEditText = (EditText) findViewById(R.id.phone_storage_size);
         mQuantityEditText = (EditText) findViewById(R.id.quantity_editText);
         mPriceEditText = (EditText) findViewById(R.id.phone_price_editText);
+        
+        mColourSpinner = (Spinner) findViewById(R.id.spinner_colour);
+        setupSpinner();
+    }
+
+    //Creates the setup for the Spinner
+    private void setupSpinner() {
+        // Create adapter for spinner. The list options are from the String array it will use
+        // the spinner will use the default layout
+        ArrayAdapter colourSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.phone_colour_array, android.R.layout.simple_spinner_item);
+
+        // Specify dropdown layout style - simple list view with 1 item per line
+        colourSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+
+        // Apply the adapter to the spinner
+        mColourSpinner.setAdapter(colourSpinnerAdapter);
+
+        // Set the integer mSelected to the constant values
+        mColourSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selection = (String) parent.getItemAtPosition(position);
+                if (!TextUtils.isEmpty(selection)) {
+                    if (selection.equals(getString(R.string.phone_colour_black))) {
+                        mColour = PhoneEntry.COLOUR_BLACK;
+                    } else if (selection.equals(getString(R.string.phone_colour_white))) {
+                        mColour = PhoneEntry.COLOUR_WHITE;
+                    } else if (selection.equals(getString(R.string.phone_colour_grey))){
+                        mColour = PhoneEntry.COLOUR_GREY;
+                    }
+                    else {
+                        mColour = PhoneEntry.COLOUR_UNKNOWN;
+                    }
+                }
+            }
+
+            // Because AdapterView is an abstract class, onNothingSelected must be defined
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                mColour = PhoneEntry.COLOUR_UNKNOWN;
+            }
+        });
+
     }
 
     //Within the EditorActivity, inflate the menu
@@ -70,14 +124,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Use trim to eliminate leading or trailing white space
         String brandString = mBrandEditText.getText().toString().trim();
         String modelString = mModelEditText.getText().toString().trim();
+        String storageSizeString = mStorageSizeEditText.getText().toString().trim();
         String quantityString = mQuantityEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
 
         // Check if this is supposed to be a new pet
         // and check if all the fields in the editor are blank
         if (mCurrentPhoneUri == null &&
-                TextUtils.isEmpty(brandString) && TextUtils.isEmpty(modelString) &&
-                TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(priceString)) {
+                TextUtils.isEmpty(brandString) && TextUtils.isEmpty(modelString) && TextUtils.isEmpty(storageSizeString) &&
+                TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(priceString) && mColour == PhoneEntry.COLOUR_UNKNOWN) {
             // Since no fields were modified, we can return early without creating a new pet.
             // No need to create ContentValues and no need to do any ContentProvider operations.
             return;
@@ -88,6 +143,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         ContentValues values = new ContentValues();
         values.put(PhoneEntry.COLUMN_PHONE_BRAND, brandString);
         values.put(PhoneEntry.COLUMN_PHONE_MODEL, modelString);
+        values.put(PhoneEntry.COLUMN_PHONE_COLOUR, mColour);
         // If the price is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
         int price = 0;
@@ -95,11 +151,19 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             price = Integer.parseInt(priceString);
         }
         values.put(PhoneEntry.COLUMN_PHONE_PRICE, price);
+
         int quantity = 0;
         if (!TextUtils.isEmpty(quantityString)) {
             quantity = Integer.parseInt(quantityString);
         }
         values.put(PhoneEntry.COLUMN_PHONE_QUANTITY, quantity);
+
+        int storageSize = 0;
+        if (!TextUtils.isEmpty(storageSizeString)) {
+            storageSize = Integer.parseInt(storageSizeString);
+        }
+        values.put(PhoneEntry.COLUMN_PHONE_MEMORY, storageSize);
+
 
         // Determine if this is a new or existing pet by checking if mCurrentPhoneUri is null or not
         if (mCurrentPhoneUri == null) {
@@ -144,6 +208,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         switch (item.getItemId()) {
             case (R.id.save_phone_entry):
                 savePhone();
+                //Exit out of the activity
+                finish();
                 return true;
             case (R.id.delete_phone_entry):
                 //Delete phone data entry...to be implemented after creating the PhoneProvider class
@@ -167,22 +233,42 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             //Find the columns responsible for the fields
             int brandColumnIndex = cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_BRAND);
             int modelColumnIndex = cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_MODEL);
+            int colourColumnIndex = cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_COLOUR);
+            int storageSizeColumnIndex = cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_MEMORY);
             int priceColumnIndex = cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_PRICE);
             int inventoryColumnIndex = cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_QUANTITY);
 
             //Extract the properties
             String brand = cursor.getString(brandColumnIndex);
             String model = cursor.getString(modelColumnIndex);
+            int colour = cursor.getInt(colourColumnIndex);
+            int storageSize = cursor.getInt(storageSizeColumnIndex);
             int price = cursor.getInt(priceColumnIndex);
             int inventorystock = cursor.getInt(inventoryColumnIndex);
 
             mBrandEditText.setText(brand);
             mModelEditText.setText(model);
-            mPriceEditText.setText(price);
-            mQuantityEditText.setText(inventorystock);
+            mPriceEditText.setText(Integer.toString(price));
+            mStorageSizeEditText.setText(Integer.toString(storageSize));
+            mQuantityEditText.setText(Integer.toString(inventorystock));
+
+            // Colour is a dropdown spinner, so map the constant value from the database
+            // into one of the dropdown options (0 is Unknown, 1 is Black, 2 is White, 3 is Grey).
+            // Then call setSelection() so that option is displayed on screen as the current selection.
+            switch (colour) {
+                case PhoneEntry.COLOUR_BLACK:
+                    mColourSpinner.setSelection(1);
+                    break;
+                case PhoneEntry.COLOUR_WHITE:
+                    mColourSpinner.setSelection(2);
+                    break;
+                case PhoneEntry.COLOUR_GREY:
+                    mColourSpinner.setSelection(3);
+                default:
+                    mColourSpinner.setSelection(0);
+                    break;
+            }
         }
-
-
     }
 
     @Override
@@ -192,5 +278,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mModelEditText.setText("");
         mPriceEditText.setText("");
         mQuantityEditText.setText("");
+        mColourSpinner.setSelection(0);
     }
 }

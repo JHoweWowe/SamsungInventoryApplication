@@ -48,7 +48,5 @@ public class PhoneCursorAdapter extends CursorAdapter {
         //Set the TextViews
         brandPhoneTextView.setText(brand);
         modelPhoneTextView.setText(model);
-        pricePhoneTextView.setText(price);
-        inventoryPhoneTextView.setText(inventorystock);
     }
 }

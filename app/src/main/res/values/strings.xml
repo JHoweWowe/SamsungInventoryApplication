@@ -30,4 +30,10 @@
     <string name="editor_update_phone_failed">Updating a Phone entry failed</string>
     <string name="editor_update_phone_successful">Updating a Phone entry was successful</string>
 
+     <!-- Colour of the Phones-->
+    <string name="phone_colour_black">Black</string>
+    <string name="phone_colour_white">White</string>
+    <string name="phone_colour_grey">Grey</string>
+    <string name="phone_colour_unknown">Unknown</string>
+
 </resources>

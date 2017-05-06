@@ -68,7 +68,7 @@
 
             <!-- Colour drop-down spinner -->
             <Spinner
-                android:id="@+id/spinner_gender"
+                android:id="@+id/spinner_colour"
                 android:layout_height="48dp"
                 android:layout_width="wrap_content"
                 android:paddingRight="16dp"
@@ -91,6 +91,7 @@
             android:layout_height="wrap_content" />
 
         <EditText
+            android:id="@+id/phone_storage_size"
             android:hint="Storage size?"
             android:inputType="number"
             android:layout_width="wrap_content"

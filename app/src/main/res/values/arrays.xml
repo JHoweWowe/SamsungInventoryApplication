@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="phone_colour_array">
+        <item>@string/phone_colour_black</item>
+        <item>@string/phone_colour_white</item>
+        <item>@string/phone_colour_grey</item>
+        <item>@string/phone_colour_unknown</item>
+    </string-array>
+    
+</resources>

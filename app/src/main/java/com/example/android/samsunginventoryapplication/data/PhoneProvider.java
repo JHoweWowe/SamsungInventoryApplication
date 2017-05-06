@@ -38,7 +38,7 @@ public class PhoneProvider extends ContentProvider {
         sUriMatcher.addURI(PhoneContract.CONTENT_AUTHORITY, PhoneContract.PATH_PHONE, PHONE);
         //Calls to addUri() are instantiated here..the second line of code shows a single row (Phone) of the database table
         //especially if we only want a single Phone inventory report
-        sUriMatcher.addURI(PhoneContract.CONTENT_AUTHORITY,PhoneContract.PATH_PHONE, PHONE_ID);
+        sUriMatcher.addURI(PhoneContract.CONTENT_AUTHORITY,PhoneContract.PATH_PHONE + "/#", PHONE_ID);
     }
 
     @Override
