@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -65,6 +66,22 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         
         mColourSpinner = (Spinner) findViewById(R.id.spinner_colour);
         setupSpinner();
+
+        //Implementing the increase and decrease of quantity of the phone inventory stock
+        Button buttonLessQuantity = (Button) findViewById(R.id.phone_minus_quantity);
+        buttonLessQuantity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                subtractOneToQuantity();
+            }
+        });
+        Button buttonMoreQuantity = (Button) findViewById(R.id.phone_plus_quantity);
+        buttonMoreQuantity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                increaseOneToQuantity();
+            }
+        });
     }
 
     //Creates the setup for the Spinner
@@ -201,6 +218,45 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
     }
 
+    //Performs the action of deleting a phone entry from the database
+    private void deletePhone() {
+        if (mCurrentPhoneUri != null) {
+            int rowsDeleted = getContentResolver().delete(PhoneEntry.CONTENT_URI,null,null);
+            //Show if deleting the phone entry was successful or failed
+            if (rowsDeleted == 0) {
+                Toast.makeText(this,"Error with deleting the phone entry",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(this,"Deleting the phone entry was successful",Toast.LENGTH_SHORT).show();
+            }
+        }
+        finish();
+    }
+    //Decreases the quantity of the phone inventory stock by one for every click
+    private void subtractOneToQuantity() {
+        String previousValueString = mQuantityEditText.getText().toString();
+        int previousValue;
+        if (previousValueString.isEmpty() || previousValueString.equals("0")) {
+            return;
+        }
+        else {
+            previousValue = Integer.parseInt(previousValueString);
+            mQuantityEditText.setText(String.valueOf(previousValue - 1));
+        }
+    }
+    //Increases the quantity of the phone inventory stock by one for every click
+    private void increaseOneToQuantity() {
+        String previousValueString = mQuantityEditText.getText().toString();
+        int previousValue;
+        if (previousValueString.isEmpty() || previousValueString.equals("0")) {
+            return;
+        }
+        else {
+            previousValue = Integer.parseInt(previousValueString);
+            mQuantityEditText.setText(String.valueOf(previousValue + 1));
+        }
+    }
+
 
     //Whenever one of the menu options is clicked, ensure options can be chosen
     @Override
@@ -212,7 +268,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 finish();
                 return true;
             case (R.id.delete_phone_entry):
-                //Delete phone data entry...to be implemented after creating the PhoneProvider class
+                deletePhone();
+                //Exit out of activity
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -220,7 +277,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projection = {PhoneEntry._ID,PhoneEntry.COLUMN_PHONE_BRAND,PhoneEntry.COLUMN_PHONE_MODEL};
+        String[] projection = {PhoneEntry._ID,PhoneEntry.COLUMN_PHONE_BRAND,PhoneEntry.COLUMN_PHONE_MODEL,
+                PhoneEntry.COLUMN_PHONE_PRICE, PhoneEntry.COLUMN_PHONE_COLOUR,PhoneEntry.COLUMN_PHONE_MEMORY,PhoneEntry.COLUMN_PHONE_QUANTITY};
         return new CursorLoader(this,mCurrentPhoneUri,projection,null,null,null);
     }
 
