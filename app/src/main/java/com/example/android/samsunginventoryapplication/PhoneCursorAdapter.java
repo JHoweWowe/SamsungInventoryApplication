@@ -24,7 +24,8 @@ public class PhoneCursorAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         return LayoutInflater.from(context).inflate(R.layout.list_item,parent,false);
     }
-    //This method is used to bind all the data in a given view
+    //This method is used to bind all the data in a given view through list_item XML file
+    //Used for creating TextViews and implementing them altogether
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         //Find the fields to populate inflated template
@@ -43,10 +44,14 @@ public class PhoneCursorAdapter extends CursorAdapter {
         String brand = cursor.getString(brandColumnIndex);
         String model = cursor.getString(modelColumnIndex);
         int price = cursor.getInt(priceColumnIndex);
-        int inventorystock = cursor.getInt(inventoryColumnIndex);
+        String priceStatement = "$" + String.valueOf(price);
+        int inventoryStock = cursor.getInt(inventoryColumnIndex);
+        String inventoryStockStatement = String.valueOf(inventoryStock) + " in-stock";
 
         //Set the TextViews
         brandPhoneTextView.setText(brand);
         modelPhoneTextView.setText(model);
+        pricePhoneTextView.setText(priceStatement);
+        inventoryPhoneTextView.setText(inventoryStockStatement);
     }
 }

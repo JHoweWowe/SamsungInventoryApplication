@@ -11,6 +11,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -90,6 +91,12 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         Uri newUri = getContentResolver().insert(PhoneEntry.CONTENT_URI, values);
     }
 
+    //Private method for deleting all phone entries
+    private void deletePhone() {
+        int rowsDeleted = getContentResolver().delete(PhoneEntry.CONTENT_URI,null,null);
+        Log.v("CatalogActivity", rowsDeleted + "rows deleted from the database");
+
+    }
 
     //Whenever the user clicks on one of the options below using the menu
     //Use switch-case combo, instead of if-else statements
@@ -100,7 +107,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 insertPhone();
                 return true;
             case (R.id.action_delete_all_entries):
-                //Delete ALL phone entries...to be implemented after creating the PhoneProvider class
+                deletePhone();
                 return true;
         }
         return super.onOptionsItemSelected(item);
