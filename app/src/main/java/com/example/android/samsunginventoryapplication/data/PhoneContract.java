@@ -41,8 +41,6 @@ public final class PhoneContract {
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_PHONE;
 
-
-
         public static final String TABLE_NAME = "phone";
         public static final String _ID = BaseColumns._ID;
         public static final String COLUMN_PHONE_BRAND = "brand";

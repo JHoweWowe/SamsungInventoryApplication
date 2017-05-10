@@ -38,6 +38,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mPriceEditText;
     private Spinner mColourSpinner;
     private ImageView mImageView;
+    private String mSupplierEmail = "orders@phonesupplier.com";
 
     //Validation for validation variable
     private boolean mPhoneProductHasChanged = false;
@@ -377,9 +378,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
     }
 
-    //A private method which orders more inventory stock from the supplier
+    //A private method which orders more inventory stock from the supplier using the email application
     private void orderMoreFromSupplier() {
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
 
+        emailIntent.setData(Uri.parse("mailTo:"));
+        emailIntent.setType("text/plain");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, mSupplierEmail);
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Order " + mBrandEditText.getText().toString()
+                + " " + mModelEditText.getText().toString());
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Please ship a supply of " + mQuantityEditText.getText().toString());
+
+        if (emailIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(emailIntent);
+        }
     }
 
     //Whenever one of the menu options is clicked, ensure options can be chosen
@@ -396,7 +408,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 //Exit out of activity
                 return true;
             case (R.id.order_more_entry):
-                //Create a method which emails the supplier using an Android intent
+                //Showcase a method which emails the supplier using an Android intent
+                orderMoreFromSupplier();
                 return true;
             //When the user clicks the Android's device for home, check for additional changes
             case (android.R.id.home):
