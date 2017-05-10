@@ -17,6 +17,15 @@
     <string name="phone_available_quantity">Available Quantity</string>
     <string name="phone_price">Phone Price</string>
     <string name="phone_dollars_price">Dollars (USD$)</string>
+    <string name="phone_restock">Restock</string>
+    <string name="phone_hint_restock"># phones restock?</string>
+    <string name="phone_stock">Stocked</string>
+    <string name="delete_dialog_msg">Would you like to delete the phone entry?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="unsaved_changes_dialog_msg">Would you like to save changes?</string>
+    <string name="keep_editing">Keep editing</string>
+    <string name="discard">Discard changes</string>
 
     <!-- List_Item XML strings -->
     <string name="brand_samsung_example">Samsung</string>

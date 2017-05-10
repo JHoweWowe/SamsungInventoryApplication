@@ -46,10 +46,11 @@
         <!--Temporary solution...user shall either be able to
             access the gallery or take image from camera-->
         <ImageView
-            android:src="@drawable/ic_action_camera"
-            android:layout_height="wrap_content"
+            android:id="@+id/image_input"
+            android:src="@mipmap/ic_launcher"
+            android:layout_height="48dp"
             android:layout_weight="1.5"
-            android:layout_width="0dp"/>
+            android:layout_width="48dp"/>
 
     </LinearLayout>
 
@@ -137,6 +138,44 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_weight="0.4"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <TextView
+            android:id="@+id/phone_restock"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:text="@string/phone_restock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- This shoul -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/phone_quantity_restock"
+                android:hint="Number input"
+                android:inputType="number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/phone_text_stocked"
+                android:textSize="16sp"
+                android:text="@string/phone_stock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"

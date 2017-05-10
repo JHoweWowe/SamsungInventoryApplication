@@ -1,22 +1,27 @@
 package com.example.android.samsunginventoryapplication;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -32,6 +37,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mQuantityEditText;
     private EditText mPriceEditText;
     private Spinner mColourSpinner;
+    private ImageView mImageView;
+
+    //Validation for validation variable
+    private boolean mPhoneProductHasChanged = false;
+
+    //Validation for touch listener...this will be used for confirmation dialog when the user is prompted to decide
+    //whether the phone entry should be deleted or not
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            mPhoneProductHasChanged = true;
+            return false;
+        }
+    };
 
     //Default colour of the Phone should be Unknown, in case the user fails to put the colour of the phone
     private int mColour = PhoneEntry.COLOUR_UNKNOWN;
@@ -57,15 +76,28 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             setTitle("Edit a Phone");
             getSupportLoaderManager().initLoader(PHONE_LOADER,null,this);
         }
-
+        mImageView = (ImageView) findViewById(R.id.image_input);
         mBrandEditText = (EditText) findViewById(R.id.name_phone_series);
         mModelEditText = (EditText) findViewById(R.id.series_phone_series);
         mStorageSizeEditText = (EditText) findViewById(R.id.phone_storage_size);
         mQuantityEditText = (EditText) findViewById(R.id.quantity_editText);
         mPriceEditText = (EditText) findViewById(R.id.phone_price_editText);
-        
+
+        //Setup the spinner
         mColourSpinner = (Spinner) findViewById(R.id.spinner_colour);
         setupSpinner();
+
+        //Reference the Text
+
+
+        //Monitor activity so the user can identify the
+        mImageView.setOnTouchListener(mTouchListener);
+        mBrandEditText.setOnTouchListener(mTouchListener);
+        mModelEditText.setOnTouchListener(mTouchListener);
+        mStorageSizeEditText.setOnTouchListener(mTouchListener);
+        mQuantityEditText.setOnTouchListener(mTouchListener);
+        mPriceEditText.setOnTouchListener(mTouchListener);
+        mColourSpinner.setOnTouchListener(mTouchListener);
 
         //Implementing the increase and decrease of quantity of the phone inventory stock
         Button buttonLessQuantity = (Button) findViewById(R.id.phone_minus_quantity);
@@ -83,6 +115,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             }
         });
     }
+
+    //I definitely need to implement the image picking for the application
+    //Example: https://github.com/elmaso/Inventory/blob/master/app/src/main/java/com/abnd/maso/inventory/InventoryEditor.java
 
     //Creates the setup for the Spinner
     private void setupSpinner() {
@@ -130,6 +165,39 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_editor,menu);
         return true;
+    }
+
+    //Called when the phone entry has not even been created yet...so the developer has to ensure you cannot delete a non-existing phone
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        if (mCurrentPhoneUri == null) {
+            //References the menu item
+            MenuItem menuItem = menu.findItem(R.id.delete_phone_entry);
+            menuItem.setVisible(false);
+        }
+        return true;
+    }
+
+    //Overriding the normal activity's back button which is integrated within the phone. Therefore, we want to hook up the back button
+    @Override
+    public void onBackPressed() {
+        //If no changes occur, leave the app's activity
+        if (!mPhoneProductHasChanged) {
+            super.onBackPressed();
+            return;
+        }
+        //Otherwise, if there are changes to the activity, display a dialog which prompts the user
+        //whether he wants to enforce changes or not
+        DialogInterface.OnClickListener discardButtonClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //User clicked the "discard" button, exit the activity
+                finish();
+            }
+        };
+        showUnsavedChangesDialog(discardButtonClickListener);
+
     }
 
     /**
@@ -218,8 +286,60 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
     }
 
+    /*
+    Prompt the user whether he wants to save the changes within the application
+     */
+    private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
+        //Create a AlertDialog.Builder and set the message
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.unsaved_changes_dialog_msg);
+        builder.setPositiveButton(R.string.discard, discardButtonClickListener);
+        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                //Make the dialog disappear
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        //Creates the dialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    /**
+     * Prompt the user to confirm that they want to delete the phone entry.
+     */
+    private void showDeleteConfirmationDialog() {
+        // Create an AlertDialog.Builder and set the message
+        // This also creates click listeners for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_dialog_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Delete" button, so delete the phone.
+                deletePhone();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Cancel" button, so dismiss the dialog
+                // and continue editing the phone.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+
     //Performs the action of deleting a phone entry from the database
     private void deletePhone() {
+        //Determines whether the phone entry was created or not
         if (mCurrentPhoneUri != null) {
             int rowsDeleted = getContentResolver().delete(PhoneEntry.CONTENT_URI,null,null);
             //Show if deleting the phone entry was successful or failed
@@ -257,6 +377,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
     }
 
+    //A private method which orders more inventory stock from the supplier
+    private void orderMoreFromSupplier() {
+
+    }
 
     //Whenever one of the menu options is clicked, ensure options can be chosen
     @Override
@@ -268,8 +392,29 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 finish();
                 return true;
             case (R.id.delete_phone_entry):
-                deletePhone();
+                showDeleteConfirmationDialog();
                 //Exit out of activity
+                return true;
+            case (R.id.order_more_entry):
+                //Create a method which emails the supplier using an Android intent
+                return true;
+            //When the user clicks the Android's device for home, check for additional changes
+            case (android.R.id.home):
+                if (!mPhoneProductHasChanged) {
+                    NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                }
+                //If there are additional changes, setup a dialog to warn user
+                DialogInterface.OnClickListener discardButtonClickListener =
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // User clicked "Discard" button, navigate to parent activity.
+                                NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                            }
+                        };
+
+                // Show a dialog that notifies the user they have unsaved changes
+                showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
         }
         return super.onOptionsItemSelected(item);

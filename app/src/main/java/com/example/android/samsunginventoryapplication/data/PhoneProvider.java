@@ -155,7 +155,7 @@ public class PhoneProvider extends ContentProvider {
         //Track the number of rows in the database that will/is being deleted
         int rowsDeleted;
 
-        final int match = sUriMatcher.match(uri);
+        int match = sUriMatcher.match(uri);
         switch (match) {
             case PHONE:
                 // Delete all rows that match the selection and selection args
@@ -183,7 +183,7 @@ public class PhoneProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        final int match = sUriMatcher.match(uri);
+        int match = sUriMatcher.match(uri);
         switch (match) {
             case (PHONE):
                 return updatePhone(uri, values, selection, selectionArgs);

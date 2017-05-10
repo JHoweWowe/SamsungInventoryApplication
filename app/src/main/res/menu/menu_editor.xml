@@ -15,4 +15,9 @@
         android:title="Delete"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/order_more_entry"
+        android:title="Order More!"
+        app:showAsAction="never"/>
+
 </menu>
