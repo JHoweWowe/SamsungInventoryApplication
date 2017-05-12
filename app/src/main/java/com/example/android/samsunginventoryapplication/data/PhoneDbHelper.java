@@ -24,7 +24,8 @@ public class PhoneDbHelper extends SQLiteOpenHelper {
             + PhoneEntry.COLUMN_PHONE_COLOUR + " INTEGER,"
             + PhoneEntry.COLUMN_PHONE_MEMORY + " INTEGER DEFAULT 0,"
             + PhoneEntry.COLUMN_PHONE_QUANTITY + " INTEGER DEFAULT 0,"
-            + PhoneEntry.COLUMN_PHONE_PRICE + " INTEGER)";
+            + PhoneEntry.COLUMN_PHONE_PRICE + " INTEGER,"
+            + PhoneEntry.COLUMN_PHONE_PICTURE + "BLOB" + ");";
 
     public PhoneDbHelper(Context context) {
         super(context,DATABASE_NAME,null,DATABASE_VERSION);

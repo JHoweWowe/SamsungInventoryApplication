@@ -50,6 +50,9 @@ public final class PhoneContract {
         public static final String COLUMN_PHONE_QUANTITY = "quantity";
         public static final String COLUMN_PHONE_PRICE = "price";
 
+        //Needs some serious checking
+        public static final String COLUMN_PHONE_PICTURE = "picture";
+
         //These following values are used for choosing colour options in the spinner
         public static final int COLOUR_BLACK = 0;
         public static final int COLOUR_GREY = 1;

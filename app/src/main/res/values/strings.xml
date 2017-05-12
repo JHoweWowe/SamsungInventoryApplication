@@ -26,6 +26,7 @@
     <string name="unsaved_changes_dialog_msg">Would you like to save changes?</string>
     <string name="keep_editing">Keep editing</string>
     <string name="discard">Discard changes</string>
+    <string name="err_external_storage_permissions">You need permission to retrieve a product photo</string>
 
     <!-- List_Item XML strings -->
     <string name="brand_samsung_example">Samsung</string>

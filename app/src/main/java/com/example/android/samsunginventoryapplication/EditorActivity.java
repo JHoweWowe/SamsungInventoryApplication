@@ -5,8 +5,12 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
@@ -27,6 +31,10 @@ import android.widget.Toast;
 
 import com.example.android.samsunginventoryapplication.data.PhoneContract.PhoneEntry;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+//Review the ImageView implementation...write the steps out first before typing in the code and study from another code
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int PHONE_LOADER = 0;
@@ -37,8 +45,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mQuantityEditText;
     private EditText mPriceEditText;
     private Spinner mColourSpinner;
-    private ImageView mImageView;
+    private ImageView mProductPhoto;
     private String mSupplierEmail = "orders@phonesupplier.com";
+    private String mCurrentPhotoUri = "no image available";
+    String[] projection = { MediaStore.Images.Media.DATA };
+
+
+    //Variables for picking the image the user wants
+    private int REQUEST_IMAGE_CAPTURE = 1;
+    byte[] image;
+    public static final int PICK_PHOTO_REQUEST = 20;
+    public static final int EXTERNAL_STORAGE_REQUEST_PERMISSION_CODE = 21;
 
     //Validation for validation variable
     private boolean mPhoneProductHasChanged = false;
@@ -77,7 +94,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             setTitle("Edit a Phone");
             getSupportLoaderManager().initLoader(PHONE_LOADER,null,this);
         }
-        mImageView = (ImageView) findViewById(R.id.image_input);
+        mProductPhoto = (ImageView) findViewById(R.id.image_input);
         mBrandEditText = (EditText) findViewById(R.id.name_phone_series);
         mModelEditText = (EditText) findViewById(R.id.series_phone_series);
         mStorageSizeEditText = (EditText) findViewById(R.id.phone_storage_size);
@@ -88,11 +105,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mColourSpinner = (Spinner) findViewById(R.id.spinner_colour);
         setupSpinner();
 
-        //Reference the Text
-
-
         //Monitor activity so the user can identify the
-        mImageView.setOnTouchListener(mTouchListener);
+        mProductPhoto.setOnTouchListener(mTouchListener);
         mBrandEditText.setOnTouchListener(mTouchListener);
         mModelEditText.setOnTouchListener(mTouchListener);
         mStorageSizeEditText.setOnTouchListener(mTouchListener);
@@ -115,10 +129,48 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 increaseOneToQuantity();
             }
         });
+
+        //Allow the photo click listener to update itself
+        mProductPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                invokeGetPhoto();
+            }
+        });
     }
 
-    //I definitely need to implement the image picking for the application
-    //Example: https://github.com/elmaso/Inventory/blob/master/app/src/main/java/com/abnd/maso/inventory/InventoryEditor.java
+    //Launch the gallery image chooser
+    private void invokeGetPhoto() {
+        // invoke the image gallery using an implicit intent.
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        // Show only images, no videos or anything else
+        photoPickerIntent.setType("image/*");
+        photoPickerIntent.setAction(Intent.ACTION_GET_CONTENT);
+        // Always show the chooser (if there are multiple options available)
+        startActivityForResult(Intent.createChooser(photoPickerIntent, "Choose a picture"), REQUEST_IMAGE_CAPTURE);
+    }
+
+    //Choose the picture by overriding the method regarding this situation
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+
+            Uri imageUri = data.getData();
+
+            try {
+                //Attempt for the application to save the picture the user wants to use
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                // Log.d(TAG, String.valueOf(bitmap));
+                //Reference the ImageView
+                ImageView imageView = (ImageView) findViewById(R.id.image_input);
+                imageView.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     //Creates the setup for the Spinner
     private void setupSpinner() {
@@ -224,12 +276,24 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             return;
         }
 
+        if(mProductPhoto.getDrawable() == null) {
+            Toast.makeText(this,"You must upload an image.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Bitmap imageBitMap = ((BitmapDrawable)mProductPhoto.getDrawable()).getBitmap();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        imageBitMap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+        byte[] imageByteArray = bos.toByteArray();
+
         // Create a ContentValues object where column names are the keys,
         // and Phone attributes from the editor are the values.
         ContentValues values = new ContentValues();
         values.put(PhoneEntry.COLUMN_PHONE_BRAND, brandString);
         values.put(PhoneEntry.COLUMN_PHONE_MODEL, modelString);
         values.put(PhoneEntry.COLUMN_PHONE_COLOUR, mColour);
+        values.put(PhoneEntry.COLUMN_PHONE_PICTURE,imageByteArray);
+
         // If the price is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
         int price = 0;
@@ -436,7 +500,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = {PhoneEntry._ID,PhoneEntry.COLUMN_PHONE_BRAND,PhoneEntry.COLUMN_PHONE_MODEL,
-                PhoneEntry.COLUMN_PHONE_PRICE, PhoneEntry.COLUMN_PHONE_COLOUR,PhoneEntry.COLUMN_PHONE_MEMORY,PhoneEntry.COLUMN_PHONE_QUANTITY};
+                PhoneEntry.COLUMN_PHONE_PRICE, PhoneEntry.COLUMN_PHONE_COLOUR,PhoneEntry.COLUMN_PHONE_MEMORY,
+                PhoneEntry.COLUMN_PHONE_QUANTITY,PhoneEntry.COLUMN_PHONE_PICTURE};
         return new CursorLoader(this,mCurrentPhoneUri,projection,null,null,null);
     }
 
@@ -453,6 +518,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             int storageSizeColumnIndex = cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_MEMORY);
             int priceColumnIndex = cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_PRICE);
             int inventoryColumnIndex = cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_QUANTITY);
+            int pictureColumnIndex = cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_PICTURE);
 
             //Extract the properties
             String brand = cursor.getString(brandColumnIndex);
@@ -461,12 +527,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             int storageSize = cursor.getInt(storageSizeColumnIndex);
             int price = cursor.getInt(priceColumnIndex);
             int inventorystock = cursor.getInt(inventoryColumnIndex);
+            byte[] imageByteArray = cursor.getBlob(pictureColumnIndex);
 
             mBrandEditText.setText(brand);
             mModelEditText.setText(model);
             mPriceEditText.setText(Integer.toString(price));
             mStorageSizeEditText.setText(Integer.toString(storageSize));
             mQuantityEditText.setText(Integer.toString(inventorystock));
+
+            Bitmap bmp = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
+            mProductPhoto.setImageBitmap(bmp);
 
             // Colour is a dropdown spinner, so map the constant value from the database
             // into one of the dropdown options (0 is Unknown, 1 is Black, 2 is White, 3 is Grey).

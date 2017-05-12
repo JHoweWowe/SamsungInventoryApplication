@@ -132,6 +132,11 @@ public class PhoneProvider extends ContentProvider {
         if (price == null || price < 0) {
             throw new IllegalArgumentException("Dude, you should know the price of the given model/brand of your phone");
         }
+        // Check that the image is not null
+        byte[] image = contentValues.getAsByteArray(PhoneEntry.COLUMN_PHONE_PICTURE);
+        if (image == null) {
+            throw new IllegalArgumentException("Product requires image to be set");
+        }
 
         //Allow access for the database to be written
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -235,6 +240,13 @@ public class PhoneProvider extends ContentProvider {
             Integer price = values.getAsInteger(PhoneEntry.COLUMN_PHONE_PRICE);
             if (price == null || price < 0) {
                 throw new IllegalArgumentException("Dude, you should know how much each phone should cost");
+            }
+        }
+        // Check that the price is non-negative
+        if (values.containsKey(PhoneEntry.COLUMN_PHONE_PICTURE)) {
+            byte[] image = values.getAsByteArray(PhoneEntry.COLUMN_PHONE_PICTURE);
+            if (image == null) {
+                throw new IllegalArgumentException("Product requires image to be set");
             }
         }
         //If the ContentValues size is 0, don't even try to update

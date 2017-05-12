@@ -1,7 +1,6 @@
 package com.example.android.samsunginventoryapplication;
 
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -72,25 +71,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         return true;
     }
 
-    //Private method for inserting random phone data;
-    private void insertPhone() {
-        // Create a ContentValues object where column names are the keys,
-        // and Toto's pet attributes are the values.
-        ContentValues values = new ContentValues();
-        values.put(PhoneEntry.COLUMN_PHONE_BRAND, "Samsung");
-        values.put(PhoneEntry.COLUMN_PHONE_MODEL, "Galaxy S5");
-        values.put(PhoneEntry.COLUMN_PHONE_QUANTITY, 155);
-        values.put(PhoneEntry.COLUMN_PHONE_PRICE, 565);
-        values.put(PhoneEntry.COLUMN_PHONE_COLOUR,PhoneEntry.COLOUR_GREY);
-        values.put(PhoneEntry.COLUMN_PHONE_MEMORY,1445);
-
-        // Insert a new row for a phone into the provider using the ContentResolver.
-        // Use the {@link PhoneEntry CONTENT URI} to indicate that we want to insert
-        // into the phone database table.
-        // Receive the new content URI that will allow us to access a phone's data in the future.
-        Uri newUri = getContentResolver().insert(PhoneEntry.CONTENT_URI, values);
-    }
-
     //Private method for deleting all phone entries
     private void deletePhone() {
         int rowsDeleted = getContentResolver().delete(PhoneEntry.CONTENT_URI,null,null);
@@ -103,9 +83,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case (R.id.action_insert_random_phone_data):
-                insertPhone();
-                return true;
             case (R.id.action_delete_all_entries):
                 deletePhone();
                 return true;
@@ -117,7 +94,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = new String[] {PhoneEntry._ID,PhoneEntry.COLUMN_PHONE_BRAND,PhoneEntry.COLUMN_PHONE_MODEL,
-                PhoneEntry.COLUMN_PHONE_PRICE,PhoneEntry.COLUMN_PHONE_QUANTITY};
+                PhoneEntry.COLUMN_PHONE_PRICE,PhoneEntry.COLUMN_PHONE_QUANTITY,PhoneEntry.COLUMN_PHONE_PICTURE};
         return new CursorLoader(this,PhoneEntry.CONTENT_URI,projection,null,null,null);
     }
 
