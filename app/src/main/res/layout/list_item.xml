@@ -63,6 +63,13 @@
                 android:text="@string/inventory_samsung_example"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"/>
+            <Button
+                android:id="@+id/buy_button_phone"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:text="@string/buy_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
 
         </LinearLayout>

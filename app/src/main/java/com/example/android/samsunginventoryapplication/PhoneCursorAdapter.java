@@ -1,10 +1,15 @@
 package com.example.android.samsunginventoryapplication;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
@@ -27,7 +32,7 @@ public class PhoneCursorAdapter extends CursorAdapter {
     //This method is used to bind all the data in a given view through list_item XML file
     //Used for creating TextViews and implementing them altogether
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, Cursor cursor) {
         //Find the fields to populate inflated template
         TextView brandPhoneTextView = (TextView) view.findViewById(R.id.brand_phone);
         TextView modelPhoneTextView = (TextView) view.findViewById(R.id.model_phone);
@@ -47,11 +52,38 @@ public class PhoneCursorAdapter extends CursorAdapter {
         String priceStatement = "$" + String.valueOf(price);
         int inventoryStock = cursor.getInt(inventoryColumnIndex);
         String inventoryStockStatement = String.valueOf(inventoryStock) + " in-stock";
+        final int productId = cursor.getInt(cursor.getColumnIndex(PhoneEntry._ID));
+        final int quantity = cursor.getInt(cursor.getColumnIndex(PhoneEntry.COLUMN_PHONE_QUANTITY));
 
         //Set the TextViews
         brandPhoneTextView.setText(brand);
         modelPhoneTextView.setText(model);
         pricePhoneTextView.setText(priceStatement);
         inventoryPhoneTextView.setText(inventoryStockStatement);
+
+        //Reference to the sales Button for the user to buy the phone
+        Button buyPhoneButton = (Button) view.findViewById(R.id.buy_button_phone);
+        buyPhoneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri itemUri = ContentUris.withAppendedId(PhoneEntry.CONTENT_URI, productId);
+                buyProduct(context, itemUri, quantity);
+            }
+        });
     }
-}
+
+        // Decrease product count by 1
+        private void buyProduct(Context context, Uri itemUri, int currentCount) {
+            int newCount = (currentCount >= 1) ? currentCount - 1 : 0;
+            ContentValues values = new ContentValues();
+            values.put(PhoneEntry.COLUMN_PHONE_QUANTITY, newCount);
+            int numRowsUpdated = context.getContentResolver().update(itemUri, values, null, null);
+
+            if (numRowsUpdated > 0) {
+                Log.i(PhoneCursorAdapter.class.getName(), "Buy product successful");
+            } else {
+                Log.i(PhoneCursorAdapter.class.getName(), "Could not update buy product");
+            }
+        }
+
+    }

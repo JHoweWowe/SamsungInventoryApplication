@@ -33,6 +33,7 @@
     <string name="model_samsung_example">Galaxy S3</string>
     <string name="price_samsung_example">$499.95</string>
     <string name="inventory_samsung_example">473 in stock</string>
+    <string name="buy_phone">Buy</string>
 
 
     <string name="editor_insert_phone_failed">Inserting a Phone entry failed</string>
