@@ -18,14 +18,14 @@ public class PhoneDbHelper extends SQLiteOpenHelper {
     //Helper values to create/upgrade SQLiteDatabase
     public static final String SQL_CREATE_PHONE_ENTRIES =
             "CREATE TABLE " + PhoneEntry.TABLE_NAME
-            + " (" + PhoneEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + PhoneEntry.COLUMN_PHONE_BRAND + " TEXT,"
-            + PhoneEntry.COLUMN_PHONE_MODEL + " TEXT,"
-            + PhoneEntry.COLUMN_PHONE_COLOUR + " INTEGER,"
-            + PhoneEntry.COLUMN_PHONE_MEMORY + " INTEGER DEFAULT 0,"
-            + PhoneEntry.COLUMN_PHONE_QUANTITY + " INTEGER DEFAULT 0,"
-            + PhoneEntry.COLUMN_PHONE_PRICE + " INTEGER,"
-            + PhoneEntry.COLUMN_PHONE_PICTURE + "BLOB" + ");";
+                    + " (" + PhoneEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + PhoneEntry.COLUMN_PHONE_BRAND + " TEXT, "
+                    + PhoneEntry.COLUMN_PHONE_MODEL + " TEXT, "
+                    + PhoneEntry.COLUMN_PHONE_COLOUR + " INTEGER, "
+                    + PhoneEntry.COLUMN_PHONE_MEMORY + " INTEGER DEFAULT 0, "
+                    + PhoneEntry.COLUMN_PHONE_QUANTITY + " INTEGER DEFAULT 0, "
+                    + PhoneEntry.COLUMN_PHONE_PRICE + " INTEGER, "
+                    + PhoneEntry.COLUMN_PHONE_PICTURE + " BLOB" + ");";
 
     public PhoneDbHelper(Context context) {
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
