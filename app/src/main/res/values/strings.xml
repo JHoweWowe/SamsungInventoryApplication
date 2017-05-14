@@ -27,6 +27,8 @@
     <string name="keep_editing">Keep editing</string>
     <string name="discard">Discard changes</string>
     <string name="err_external_storage_permissions">You need permission to retrieve a product photo</string>
+    <string name="fill_values">You must fill out all values</string>
+    <string name="upload_img_requirement">You must upload an image</string>
 
     <!-- List_Item XML strings -->
     <string name="brand_samsung_example">Samsung</string>

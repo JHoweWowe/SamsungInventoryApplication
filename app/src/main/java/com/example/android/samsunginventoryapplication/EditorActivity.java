@@ -34,6 +34,8 @@ import com.example.android.samsunginventoryapplication.data.PhoneContract.PhoneE
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import static android.R.attr.id;
+
 //Review the ImageView implementation...write the steps out first before typing in the code and study from another code
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -48,8 +50,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private ImageView mProductPhoto;
     private String mSupplierEmail = "orders@phonesupplier.com";
     private String mCurrentPhotoUri = "no image available";
-    String[] projection = { MediaStore.Images.Media.DATA };
-
 
     //Variables for picking the image the user wants
     private int REQUEST_IMAGE_CAPTURE = 1;
@@ -265,15 +265,22 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String storageSizeString = mStorageSizeEditText.getText().toString().trim();
         String quantityString = mQuantityEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
+        int price = Integer.valueOf(priceString);
+        int quantity = Integer.valueOf(quantityString);
+        int storageSize = Integer.valueOf(storageSizeString);
 
         // Check if this is supposed to be a new pet
-        // and check if all the fields in the editor are blank
-        if (mCurrentPhoneUri == null &&
-                TextUtils.isEmpty(brandString) && TextUtils.isEmpty(modelString) && TextUtils.isEmpty(storageSizeString) &&
-                TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(priceString) && mColour == PhoneEntry.COLOUR_UNKNOWN) {
-            // Since no fields were modified, we can return early without creating a new pet.
+        // and check for user validation
+        if (TextUtils.isEmpty(brandString) || TextUtils.isEmpty(modelString)
+                || TextUtils.isEmpty(storageSizeString) || TextUtils.isEmpty(quantityString)
+                || TextUtils.isEmpty(priceString) || mCurrentPhoneUri == null )  {
+            // Since no fields were modified, we can return early without creating a new inventory.
             // No need to create ContentValues and no need to do any ContentProvider operations.
-            Toast.makeText(this,"You must fill out all values",Toast.LENGTH_SHORT).show();
+            price = 0;
+            quantity = 0;
+            storageSize = 0;
+            Toast.makeText(getApplicationContext(),"Nothing was added to database: empty inputs",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -292,29 +299,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         ContentValues values = new ContentValues();
         values.put(PhoneEntry.COLUMN_PHONE_BRAND, brandString);
         values.put(PhoneEntry.COLUMN_PHONE_MODEL, modelString);
+        values.put(PhoneEntry.COLUMN_PHONE_PRICE, price);
+        values.put(PhoneEntry.COLUMN_PHONE_QUANTITY, quantity);
+        values.put(PhoneEntry.COLUMN_PHONE_MEMORY, storageSize);
         values.put(PhoneEntry.COLUMN_PHONE_COLOUR, mColour);
         values.put(PhoneEntry.COLUMN_PHONE_PICTURE,imageByteArray);
-
-        // If the price is not provided by the user, don't try to parse the string into an
-        // integer value. Use 0 by default.
-        int price = 0;
-        if (!TextUtils.isEmpty(priceString)) {
-            price = Integer.parseInt(priceString);
-        }
-        values.put(PhoneEntry.COLUMN_PHONE_PRICE, price);
-
-        int quantity = 0;
-        if (!TextUtils.isEmpty(quantityString)) {
-            quantity = Integer.parseInt(quantityString);
-        }
-        values.put(PhoneEntry.COLUMN_PHONE_QUANTITY, quantity);
-
-        int storageSize = 0;
-        if (!TextUtils.isEmpty(storageSizeString)) {
-            storageSize = Integer.parseInt(storageSizeString);
-        }
-        values.put(PhoneEntry.COLUMN_PHONE_MEMORY, storageSize);
-
 
         // Determine if this is a new or existing pet by checking if mCurrentPhoneUri is null or not
         if (mCurrentPhoneUri == null) {
@@ -403,11 +392,14 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     }
 
 
-    //Performs the action of deleting a phone entry from the database
+    //Performs the action of deleting ONLY THE PARTICULAR phone entry from the database
     private void deletePhone() {
         //Determines whether the phone entry was created or not
         if (mCurrentPhoneUri != null) {
-            int rowsDeleted = getContentResolver().delete(PhoneEntry.CONTENT_URI,null,null);
+            String selection = PhoneEntry._ID + "=?";
+            String[] selectionArgs = new String[]{String.valueOf(id)};
+
+            int rowsDeleted = getContentResolver().delete(PhoneEntry.CONTENT_URI, selection , selectionArgs);
             //Show if deleting the phone entry was successful or failed
             if (rowsDeleted == 0) {
                 Toast.makeText(this,"Error with deleting the phone entry",Toast.LENGTH_SHORT).show();
